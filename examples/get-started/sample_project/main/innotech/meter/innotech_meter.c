@@ -179,7 +179,6 @@ void innotech_meter_init(void)
     _mode = _current_mode;
     innotech_flash_read("fix_vol_num", (char *)&fix_vol_num, sizeof(double));
     innotech_flash_read("fix_num", (char *)&fix_num, sizeof(double));
-    innotech_flash_read("fix_cur_num", (char *)&fix_cur_num, sizeof(double));
     innotech_flash_read("consume", (char *)&consume, sizeof(double));
     innotech_buzzer_pwm_init();
     energy.consumption = consume;
@@ -502,8 +501,8 @@ void innotech_meter_process(void)
         }
         if(innotech_factory_get() == 1)
         {
-            pre_vol = vol_always_callback();
-            mid_power = (float)power_always_callback();
+            pre_vol = vol_always_callback() * fix_vol_num;
+            mid_power = (float)power_always_callback() * fix_num;
             if(abs(mid_power - energy.power) > 3)
             {
                 energy.power = mid_power;
