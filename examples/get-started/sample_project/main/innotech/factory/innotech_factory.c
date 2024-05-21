@@ -39,8 +39,8 @@ static uint8_t vol_tick = 0;
 static float current_tick = 0;
 static uint8_t power_temp_tick = 0;
 static uint8_t vol__temp_tick = 0;
-static uint8_t vol_tick_array[5] = {0};
-static int power_tick_array[5] = {0};
+static uint8_t vol_tick_array[10] = {0};
+static int power_tick_array[10] = {0};
 static float current_tick_array[5] = {0};
 extern void esp_restart(void);
 
@@ -70,9 +70,9 @@ int power_tick_callback(void)
     int i, j;
  
 
-    for (i = 0; i < 5; i++) {
+    for (i = 0; i < 10; i++) {
         count = 0; 
-        for (j = 0; j < 5; j++) {
+        for (j = 0; j < 10; j++) {
             if (power_tick_array[i] == power_tick_array[j]) {
                 count++;
             }
@@ -118,9 +118,9 @@ int vol_tick_callback(void)
     int i, j;
  
 
-    for (i = 0; i < 5; i++) {
+    for (i = 0; i < 10; i++) {
         count = 0; 
-        for (j = 0; j < 5; j++) {
+        for (j = 0; j < 10; j++) {
             if (vol_tick_array[i] == vol_tick_array[j]) {
                 count++;
             }
@@ -156,8 +156,7 @@ void innotech_factory_init(void)
             innotech_buzzer_pwm_init();
             innotech_flash_read("fix_vol_num", (char *)&fix_vol_num, sizeof(double));
             innotech_flash_read("fix_num", (char *)&fix_num, sizeof(double));
-            innotech_flash_read("fix_cur_num", (char *)&fix_cur_num, sizeof(double));
-            if(fix_vol_num && fix_num && fix_cur_num)
+            if(fix_vol_num && fix_num)
             {
                 check_down = 1;
             }
@@ -172,16 +171,12 @@ void innotech_factory_init(void)
         innotech_meter_process();
         innotech_lcd_process();
 
-        if(++delay > 60)
+        if(tick % 15 == 0)
         {
-            delay = 60;
-            if(tick % 10 == 0)
-            {
-                power_tick_array[power_tick_flag++] = fix_power_factory();
-                vol_tick_array[vol_tick_flag++] = fix_vol_factory();
-                power_tick_flag %= 5;
-                vol_tick_flag %= 5;
-            }
+            power_tick_array[power_tick_flag++] = fix_power_factory();
+            vol_tick_array[vol_tick_flag++] = fix_vol_factory();
+            power_tick_flag %= 10;
+            vol_tick_flag %= 10;
         }
         
         
@@ -192,7 +187,7 @@ void innotech_factory_init(void)
                 tick = 0;
                 power_tick = power_tick_callback();
                 vol_tick = vol_tick_callback();
-                // current_tick = current_tick_callback();
+                printf("power_tick %d  vol_tick %d\n",power_tick,vol_tick);
                 if(check_down == 1)
                 {
                     if(vol_tick > 0 && power_tick > 0)
@@ -230,6 +225,7 @@ void innotech_factory_init(void)
             stop_flag = 0;
             if(inntech_buzzer_timer(3) == 3)
             {
+                innotech_set_relay_status(0);
                 first_factory_buzzer = 1;
             }
         }
