@@ -22,6 +22,7 @@ extern double fix_cur_num;
 extern uint8_t fix_flag;
 extern uint8_t stop_flag;
 extern uint8_t idx;
+int power_tick_callback(void);
 void innotech_factory_reset(void);
 uint8_t innotech_fix_flag_get(void);
 void innotech_factory_init(void);

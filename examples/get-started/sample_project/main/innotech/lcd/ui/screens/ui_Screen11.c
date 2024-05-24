@@ -64,19 +64,38 @@ void factory_show_timer(void)
     voltage_value = innotech_voltage_get();
     power_value = innotech_power_get();
     double cosumption = (double)innotech_consumption_get();
-    if((power_value > 195 && power_value < 205) && innotech_fix_flag_get() == 1)
+    if(innotech_fix_flag_get() == 1)
     {
-        snprintf(all_num, 15 ,"%.2lf", 220.0);
-        lv_label_set_text(ui_Label105, all_num);
+        if((power_tick_callback() * fix_num) > 195 && (power_tick_callback() * fix_num) < 205)
+        {
+            snprintf(all_num, 15 ,"%.2lf", 220.0);
+            lv_label_set_text(ui_Label105, all_num);
 
-        snprintf(all_num, 15 , "%.2lf", 200.0);
-        lv_label_set_text(ui_Label104, all_num);
+            snprintf(all_num, 15 , "%.2lf", 200.0);
+            lv_label_set_text(ui_Label104, all_num);
 
-        snprintf(all_num, 15 ,"%.2lf", 0.91);
-        lv_label_set_text(ui_Label106, all_num);
+            snprintf(all_num, 15 ,"%.2lf", 0.91);
+            lv_label_set_text(ui_Label106, all_num);
 
-        snprintf(all_num, 15 ,"%.2lf", cosumption);
-        lv_label_set_text(ui_Label107, all_num);
+            snprintf(all_num, 15 ,"%.2lf", cosumption);
+            lv_label_set_text(ui_Label107, all_num);
+        }else
+        {
+            snprintf(all_num, 15 ,"%.2lf", voltage_value);
+            lv_label_set_text(ui_Label105, all_num);
+
+            power_value = power_tick_callback() * fix_num;
+            snprintf(all_num, 15 , "%.2lf", power_value);
+            lv_label_set_text(ui_Label104, all_num);
+
+            current_value = power_value / 220;
+            snprintf(all_num, 15 ,"%.2lf", current_value);
+            lv_label_set_text(ui_Label106, all_num);
+
+            snprintf(all_num, 15 ,"%.2lf", cosumption);
+            lv_label_set_text(ui_Label107, all_num);
+        }
+        
     }else 
     {
         snprintf(all_num, 15 ,"%.2lf", voltage_value);
