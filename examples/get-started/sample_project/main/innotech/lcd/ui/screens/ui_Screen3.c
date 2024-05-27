@@ -905,7 +905,7 @@ void ui_Screen3_screen_init(void)
     lv_obj_clear_flag(ui_Image33, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_Panel3 = lv_obj_create(ui_Screen3);
-    lv_obj_set_width(ui_Panel3, 223);
+    lv_obj_set_width(ui_Panel3, 480);
     lv_obj_set_height(ui_Panel3, 34);
     lv_obj_set_x(ui_Panel3, 7);
     lv_obj_set_y(ui_Panel3, 213);

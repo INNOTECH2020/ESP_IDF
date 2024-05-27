@@ -166,6 +166,7 @@ lv_obj_t * ui_Label59;
 lv_obj_t * ui_Label60;
 lv_obj_t * ui_Label61;
 lv_obj_t * ui_Image_gn;
+lv_obj_t * ui_updating;
 lv_obj_t * ui_Label62;
 lv_obj_t * ui_Label63;
 lv_obj_t * ui_Label64;

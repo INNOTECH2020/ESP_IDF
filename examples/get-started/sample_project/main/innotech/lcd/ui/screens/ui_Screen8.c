@@ -98,6 +98,15 @@ void ui_Screen8_screen_init(void)
     lv_obj_set_align(ui_Image_gn, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_Image_gn, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_Image_gn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_updating = lv_label_create(ui_Screen8);
+    lv_obj_set_width(ui_updating, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_updating, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_updating, 10);
+    lv_obj_set_y(ui_updating, 220);
+    lv_obj_set_align(ui_updating, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_updating, "正在升级 . . .");
+    lv_obj_set_style_text_font(ui_updating, &ui_font_hanzi, LV_PART_MAIN | LV_STATE_DEFAULT);
       
     lv_obj_set_style_anim_time(slider, 50000, LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(slider, lv_color_hex(0xffffff), LV_PART_INDICATOR | LV_STATE_DEFAULT);
