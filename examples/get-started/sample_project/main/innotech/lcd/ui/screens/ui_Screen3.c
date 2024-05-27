@@ -260,7 +260,6 @@ void show_power()
      //show power
     char power_num;
     char consumption_num;
-    double cosumption = (double)innotech_consumption_get();
     innotech_config_t *innotech_config = (innotech_config_t *)innotech_config_get_handle();
 
     int power = (int)innotech_power_get();
@@ -401,8 +400,8 @@ void show_power()
         //show kw.h
         float count = innotech_consumption_get();
         int count_int = (int)(count * 10);
-            itoa((count_int % 10), &consumption_num, 10);
-            lv_label_set_text(ui_Label35, &consumption_num);
+        itoa((count_int % 10), &consumption_num, 10);
+        lv_label_set_text(ui_Label35, &consumption_num);
         itoa((count_int / 10), &consumption_num, 10);
         lv_label_set_text(ui_Label28, &consumption_num);
                 //If adding a number moves the position of a number back

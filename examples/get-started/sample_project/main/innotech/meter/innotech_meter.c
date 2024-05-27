@@ -472,7 +472,6 @@ void innotech_meter_process(void)
     static int power_flag = 0;
     static int vol_flag = 0;
     static int vol_temp = 0;
-    static double mid_current = 0;
     if(innotech_energy_check() == 1)
     {
         mqtt_send_device_energy();

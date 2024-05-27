@@ -38,7 +38,6 @@ static uint8_t check_down = 0;
 static uint8_t vol_tick = 0;
 static uint8_t vol_tick_array[10] = {0};
 static int power_tick_array[10] = {0};
-static float current_tick_array[5] = {0};
 extern void esp_restart(void);
 
 uint8_t innotech_fix_flag_get(void)
@@ -82,31 +81,6 @@ int power_tick_callback(void)
     }
     return max_num;
 }
-
-float current_tick_callback(void)
-{
-    int max_count = 0; 
-    float max_num = current_tick_array[0];
-    int count = 0;
-    int i, j;
- 
-
-    for (i = 0; i < 5; i++) {
-        count = 0; 
-        for (j = 0; j < 5; j++) {
-            if (current_tick_array[i] == current_tick_array[j]) {
-                count++;
-            }
-        }
-
-        if (count > max_count) {
-            max_count = count;
-            max_num = current_tick_array[i];
-        }
-    }
-    return max_num;
-}
-
 int vol_tick_callback(void)
 {
     int max_count = 0; 
