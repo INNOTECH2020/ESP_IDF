@@ -14,6 +14,7 @@
 
 #include <inttypes.h>
 #include "esp_timer.h"
+#include <time.h>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -28,6 +29,7 @@
 #include "esp_io_expander_tca9554.h"
 #include "innotech_config.h"
 #include "innotech_factory.h"
+#include "innotech_rtc.h"
 
 #include "esp_lcd_st7701.h"
 #include "lvgl.h"
@@ -547,6 +549,58 @@ void lvgl_init(void)
 //     ESP_ERROR_CHECK_WITHOUT_ABORT((pdPASS == ret_val) ? ESP_OK : ESP_FAIL);
 // }
 
+void innotech_brightness_switch_set(void)
+{
+    struct tm time_info = innotech_time_get();
+    switch (time_info.tm_hour) {
+        case 0:
+        case 1:
+        case 2:
+            innotech_led_pwm_write(1);
+            break;
+        case 3:
+        case 23:
+            innotech_led_pwm_write(10);
+            break;
+        case 4:
+        case 22:
+            innotech_led_pwm_write(20);
+            break;
+        case 5:
+        case 21:
+            innotech_led_pwm_write(30);
+            break;
+        case 6:
+        case 20:
+            innotech_led_pwm_write(40);
+            break;
+        case 7:
+        case 19:
+            innotech_led_pwm_write(50);
+            break;
+        case 8:
+        case 18:
+            innotech_led_pwm_write(60);
+            break;
+        case 9:
+        case 17:
+            innotech_led_pwm_write(70);
+            break;
+        case 10:
+        case 16:
+            innotech_led_pwm_write(80);
+            break;
+        case 11:
+        case 15:
+            innotech_led_pwm_write(90);
+            break;
+        case 12:
+        case 13:
+        case 14:
+            innotech_led_pwm_write(100);
+            break;
+    }
+}
 void innotech_power_switch_change_clear(void)
 {
     power_switch_change = 0;
@@ -587,7 +641,7 @@ void innotech_lcd_process(void)
     }
     else if(innotech_config->brightness_switch == 1)
     {
-        innotech_led_pwm_write(100);
+        innotech_brightness_switch_set();
     }
 }
 
