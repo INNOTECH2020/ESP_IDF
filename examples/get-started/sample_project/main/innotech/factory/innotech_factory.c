@@ -36,9 +36,6 @@ bool factory_flag = false;
 static uint8_t power_tick = 0;
 static uint8_t check_down = 0;
 static uint8_t vol_tick = 0;
-static float current_tick = 0;
-static uint8_t power_temp_tick = 0;
-static uint8_t vol__temp_tick = 0;
 static uint8_t vol_tick_array[10] = {0};
 static int power_tick_array[10] = {0};
 static float current_tick_array[5] = {0};
@@ -137,12 +134,11 @@ int vol_tick_callback(void)
 void innotech_factory_init(void)
 {
     uint8_t tick = 0;
-    uint16_t delay = 0;
     static uint8_t power_tick_flag = 0;
     static uint8_t vol_tick_flag = 0;
-    static uint8_t current_tick_flag = 0;
     uint8_t first_factory_buzzer = 0;
     innotech_netif_init();
+    innotech_config_t *innotech_config = (innotech_config_t *)innotech_config_get_handle();
     
     for(int i = 0; i < 2; i++)
     {
@@ -226,6 +222,7 @@ void innotech_factory_init(void)
             if(inntech_buzzer_timer(3) == 3)
             {
                 innotech_set_relay_status(0);
+                innotech_config->lcd_switch = 0;
                 first_factory_buzzer = 1;
             }
         }
