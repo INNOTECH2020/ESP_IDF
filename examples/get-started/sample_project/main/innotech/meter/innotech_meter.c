@@ -469,6 +469,8 @@ void innotech_meter_process(void)
 {
     static int queue_cnt = 0;
     static int pre_vol = 0;
+    static int activepower = 0;
+    static int activepower_flag = 0;
     static int power_flag = 0;
     static int vol_flag = 0;
     static int vol_temp = 0;
@@ -479,9 +481,24 @@ void innotech_meter_process(void)
 
     if((queue_cnt % 15) == 0)
     {
-        if(bl0937_getActivePower() < 10000)
+        activepower = (int)bl0937_getActivePower();
+        if((activepower != 0) && (activepower < 10000))
+        {
+            if(activepower_flag < 10)
+            {
+                activepower_flag ++;
+            }
+        }else if(activepower == 0)
+        {
+            activepower_flag = 0;
+        }
+
+        if(activepower_flag >= 5)
         {
             power_cnt_num[power_flag++] = (int)bl0937_getActivePower();
+        }else if(activepower_flag == 0)
+        {
+            power_cnt_num[power_flag++] = 0;
         }
         vol_temp = (int)bl0937_getVoltage();
         vol_cnt_num[vol_flag++] = vol_temp;
@@ -801,11 +818,13 @@ uint8_t innotech_energy_check(void)
     if((energy.current > energy_last.current * 2)|| (energy_last.current >  energy.current* 2))
     {
         energy_last.current = energy.current;
+        energy_last.power = energy.power;
         return 1;
     }
     else if ((energy.power > energy_last.power * 2)|| (energy_last.power >  energy.power* 2))
     {
         energy_last.power = energy.power;
+        energy_last.current = energy.current;
         return 1;
     }
     return 0;
