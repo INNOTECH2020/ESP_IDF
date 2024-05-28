@@ -568,7 +568,7 @@ void innotech_ble_init(void)
     
     esp_err_t ret;
     aliyun_triad_t *triad_config = (aliyun_triad_t *)innotech_triad_get_handle();
-    ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
+    // ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
 
     uint8_t base_mac_addr[6] = {0};
     hex_string_to_array(triad_config->devicename, base_mac_addr, sizeof(base_mac_addr));
