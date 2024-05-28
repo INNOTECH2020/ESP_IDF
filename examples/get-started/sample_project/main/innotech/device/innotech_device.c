@@ -87,14 +87,14 @@ void innotech_device_service_init(void)
 void innotech_device_init(void)
 {
     innotech_flash_init();
-    innotech_wifi_config_init();
+    innotech_triplet_init();
     innotech_config_init();
     innotech_factory_init();
     innotech_relay_init();
     innotech_button_init();
     innotech_meter_init();
     innotech_lcd_init();
-    innotech_wifi_connect();
+    innotech_wifi_init();
     innotech_ble_init();
     innotech_rtc_init();
     innotech_weather_init();

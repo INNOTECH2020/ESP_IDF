@@ -34,11 +34,6 @@ uint8_t innotech_factory_flag_get(void)
     return factory_reset_flag;
 }
 
-uint8_t innotech_first_key_press_get(void)
-{
-    return first_key_press;
-}
-
 void innotech_button_process(void)
 {
     static uint32_t key_count = 0;
@@ -61,18 +56,11 @@ void innotech_button_process(void)
             innotech_config->power_switch = 1;
         }
         innotech_set_relay_status(innotech_config->power_switch);
-        if(first_key_press == 0)
-        {
-            first_key_press = 1;
-        }
     }
-    // else if(key_count >= 300 && key_count < 600)
-    // {
-    //     esp_restart();
-    // }
     else
     {
         factory_reset_flag = 0;
+        first_key_press = 0;
         key_count = 0;
     }
 
@@ -93,7 +81,6 @@ void innotech_button_process(void)
             innotech_ble_init();
             innotech_power_switch_change_clear();
         }
-        
     }
 }
 
