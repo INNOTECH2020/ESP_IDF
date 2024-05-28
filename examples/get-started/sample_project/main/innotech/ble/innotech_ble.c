@@ -57,6 +57,7 @@ uint16_t heart_rate_handle_table[HRS_IDX_NB];
 
 uint8_t ble_key[16] = {0};
 uint8_t iv[16] = {0}; // 16 byte initialization vector
+esp_ble_conn_update_params_t conn_params = {0};
 typedef struct {
     uint8_t                 *prepare_buf;
     int                     prepare_len;
@@ -217,6 +218,27 @@ uint8_t innotech_pre_wifi(void)
     return pre_wifi;
 }
 
+void bt_release_task(void)
+{
+    vTaskDelay(2000 / portTICK_PERIOD_MS);
+    // ESP_LOGI(GATTS_TABLE_TAG,"Current Free Memory\t%d\t\t%d\n",
+    // heap_caps_get_free_size(MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL),
+    // heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
+    esp_ble_gap_disconnect(conn_params.bda);
+    esp_ble_gap_stop_advertising();
+    esp_ble_gatts_app_unregister(ESP_APP_ID);
+    esp_bluedroid_disable();
+    esp_bluedroid_deinit();
+    esp_bt_controller_disable();
+    esp_bt_controller_deinit();
+    // esp_bt_mem_release(ESP_BT_MODE_BLE);
+    // ESP_LOGI(GATTS_TABLE_TAG,"Current Free Memory\t%d\t\t%d\n",
+    // heap_caps_get_free_size(MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL),
+    // heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
+
+    vTaskDelete(NULL);
+}
+
 static void innotech_ble_report_wifi_state(int state)
 {
     uint8_t data[20] = {0};
@@ -246,25 +268,11 @@ static void innotech_ble_report_wifi_state(int state)
     {
         innotech_power_switch_change_clear();
     }
-}
-
-void bt_release_task(void)
-{
-    ESP_LOGI(GATTS_TABLE_TAG,"Current Free Memory\t%d\t\t%d\n",
-    heap_caps_get_free_size(MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL),
-    heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
-    esp_ble_gap_stop_advertising();
-    esp_ble_gatts_app_unregister(ESP_APP_ID);
-    esp_bluedroid_disable();
-    esp_bluedroid_deinit();
-    esp_bt_controller_disable();
-    esp_bt_controller_deinit();
-    esp_bt_mem_release(ESP_BT_MODE_BLE);
-    ESP_LOGI(GATTS_TABLE_TAG,"Current Free Memory\t%d\t\t%d\n",
-    heap_caps_get_free_size(MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL),
-    heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
-
-    vTaskDelete(NULL);
+    
+    if(innotech_wifi_state_get()) 
+    {
+        xTaskCreate(bt_release_task,"bt_release",2500,NULL,20,NULL);
+    }
 }
 
 static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
@@ -289,11 +297,6 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
             }else{
                 ESP_LOGI(GATTS_TABLE_TAG, "advertising start successfully");
                 adv_start_flag = 1;
-                if(innotech_wifi_state_get()) 
-                {
-                    xTaskCreate(bt_release_task,"bt_release",2500,NULL,20,NULL);
-                }
-                
             }
             break;
         case ESP_GAP_BLE_ADV_STOP_COMPLETE_EVT:
@@ -488,7 +491,6 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
         case ESP_GATTS_CONNECT_EVT:
             ESP_LOGI(GATTS_TABLE_TAG, "ESP_GATTS_CONNECT_EVT, conn_id = %d", param->connect.conn_id);
             esp_log_buffer_hex(GATTS_TABLE_TAG, param->connect.remote_bda, 6);
-            esp_ble_conn_update_params_t conn_params = {0};
             memcpy(conn_params.bda, param->connect.remote_bda, sizeof(esp_bd_addr_t));
             /* For the iOS system, please refer to Apple official documents about the BLE connection parameters restrictions. */
             conn_params.latency = 0;
@@ -566,7 +568,7 @@ void innotech_ble_init(void)
     
     esp_err_t ret;
     aliyun_triad_t *triad_config = (aliyun_triad_t *)innotech_triad_get_handle();
-    ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
+    // ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
 
     uint8_t base_mac_addr[6] = {0};
     hex_string_to_array(triad_config->devicename, base_mac_addr, sizeof(base_mac_addr));

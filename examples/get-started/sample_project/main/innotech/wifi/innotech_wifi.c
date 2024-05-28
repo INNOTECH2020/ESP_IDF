@@ -395,7 +395,7 @@ static void mqtt_app_start(void)
 
     };
 
-    esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
+    client = esp_mqtt_client_init(&mqtt_cfg);
     esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, client);
     esp_mqtt_client_start(client);
 }
@@ -582,8 +582,12 @@ void innotech_wifi_restore(void)
 {
     wifi_connect_state = 0;
     innotech_wifi_config_reset();
-    esp_mqtt_client_unregister_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler);
-    esp_mqtt_client_disconnect(client);
+    if (client) 
+    {
+        esp_mqtt_client_stop(client);
+        esp_mqtt_client_destroy(client);
+        client = NULL;
+    }
     esp_wifi_restore();
     wifi_restore_state = 1;
 }

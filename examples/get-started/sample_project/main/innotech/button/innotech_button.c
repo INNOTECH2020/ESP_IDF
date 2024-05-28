@@ -19,6 +19,7 @@
 #include "innotech_factory.h"
 #include "innotech_wifi.h"
 #include "innotech_ble.h"
+#include "innotech_lcd.h"
 #include "api_bridge.h"
 
 #include "freertos/FreeRTOS.h"
@@ -65,10 +66,10 @@ void innotech_button_process(void)
             first_key_press = 1;
         }
     }
-    else if(key_count >= 300 && key_count < 600)
-    {
-        esp_restart();
-    }
+    // else if(key_count >= 300 && key_count < 600)
+    // {
+    //     esp_restart();
+    // }
     else
     {
         factory_reset_flag = 0;
@@ -84,7 +85,15 @@ void innotech_button_process(void)
     }else if(key_count >= 300 && key_count < 600)
     {
         factory_reset_flag = 2;
-        innotech_wifi_restore();
+        if(first_key_press == 0)
+        {
+            first_key_press = 1;
+            innotech_wifi_restore();
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
+            innotech_ble_init();
+            innotech_power_switch_change_clear();
+        }
+        
     }
 }
 
