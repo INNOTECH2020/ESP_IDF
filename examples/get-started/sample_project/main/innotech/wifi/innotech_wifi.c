@@ -78,8 +78,9 @@ static uint8_t wifi_restore_state = 0;
 static char ota_taskId[50] = {0};
 static uint8_t ota_start_flag = 0;
 static uint8_t disconnet_flag = 1;
+static uint8_t mqtt_init_flag = 0;
 
-#define ESP_MAXIMUM_RETRY  5
+#define ESP_MAXIMUM_RETRY  3
 #define H2E_IDENTIFIER ""
 
 // #define   AliyunPublishTopic_user_update    "/sys/g8uj3GQEAGp/C411E10077EF/thing/event/property/post"
@@ -431,30 +432,21 @@ static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_
         ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
-        if(wifi_connect_state != 1)
+
+        if(mqtt_init_flag == 0)
         {
+            mqtt_init_flag = 1;
             mqtt_app_start();
+        }
+        else
+        {
+            esp_mqtt_client_reconnect(client);
         }
     }
 }
 
 void wifi_init_sta(wifi_param_t wifi)
 {
-    s_wifi_event_group = xEventGroupCreate();
-    
-    // ESP_ERROR_CHECK(esp_netif_init());
-
-    // ESP_ERROR_CHECK(esp_event_loop_create_default());
-    // esp_netif_create_default_wifi_sta();
-
-    // wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    // ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-
-    esp_event_handler_instance_t instance_any_id;
-    esp_event_handler_instance_t instance_got_ip;
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL, &instance_any_id));
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL, &instance_got_ip));
-
     wifi_config_t wifi_config = 
     {
         .sta = 
@@ -464,9 +456,9 @@ void wifi_init_sta(wifi_param_t wifi)
              * to WIFI_AUTH_WEP/WIFI_AUTH_WPA_PSK and set the password with length and format matching to
              * WIFI_AUTH_WEP/WIFI_AUTH_WPA_PSK standards.
              */
-            .threshold.authmode = WIFI_AUTH_WPA2_PSK,
-            .sae_pwe_h2e = WPA3_SAE_PWE_BOTH,
-            .sae_h2e_identifier = H2E_IDENTIFIER,
+            .threshold.authmode = WIFI_AUTH_WEP,
+            // .sae_pwe_h2e = WPA3_SAE_PWE_BOTH,
+            // .sae_h2e_identifier = H2E_IDENTIFIER,
         },
     };
 
@@ -521,7 +513,7 @@ void wifi_init_sta(wifi_param_t wifi)
     }
 }
 
-void innotech_wifi_connect(void)
+void innotech_wifi_init(void)
 {
     if(wifi_config.flag == WIFI_CONFIG_SUC)
     {
@@ -529,7 +521,7 @@ void innotech_wifi_connect(void)
     }
 }
 
-void innotech_wifi_config_init(void)
+void innotech_triplet_init(void)
 {
     memset(&wifi_config, 0, sizeof(wifi_param_t));
     innotech_flash_read("wifi", (char *)&wifi_config, sizeof(wifi_param_t));
@@ -546,6 +538,7 @@ void innotech_wifi_config_init(void)
 
 void innotech_netif_init(void)
 {
+    s_wifi_event_group = xEventGroupCreate();
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     esp_netif_t *sta_netif = esp_netif_create_default_wifi_sta();
@@ -553,6 +546,11 @@ void innotech_netif_init(void)
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+
+    esp_event_handler_instance_t instance_any_id;
+    esp_event_handler_instance_t instance_got_ip;
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL, &instance_any_id));
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL, &instance_got_ip));
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_start());
 }
@@ -582,12 +580,7 @@ void innotech_wifi_restore(void)
 {
     wifi_connect_state = 0;
     innotech_wifi_config_reset();
-    if (client) 
-    {
-        esp_mqtt_client_stop(client);
-        esp_mqtt_client_destroy(client);
-        client = NULL;
-    }
+    esp_mqtt_client_disconnect(client);
     esp_wifi_restore();
     wifi_restore_state = 1;
 }
