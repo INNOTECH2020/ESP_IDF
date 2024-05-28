@@ -23,6 +23,7 @@
 #include "innotech_button.h"
 #include "innotech_meter.h"
 #include "innotech_lcd.h"
+#include "innotech_ble.h"
 #include "api_bridge.h"
 
 
@@ -53,9 +54,11 @@ bool innotech_factory_get(void)
 void innotech_factory_reset(void)
 {
     innotech_default_device_config();
-    innotech_wifi_config_reset(); 
-    innotech_clear_consume();       
-    esp_restart();
+    innotech_clear_consume();  
+    innotech_wifi_restore();
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    innotech_ble_init();
+    innotech_power_switch_change_clear();     
 }
 
 int power_tick_callback(void)

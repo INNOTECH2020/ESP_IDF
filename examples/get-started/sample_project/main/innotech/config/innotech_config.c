@@ -146,6 +146,8 @@ void innotech_default_device_config(void)
 
     memset(&sleep_config, 0, sizeof(sleep_config_t));
     innotech_flash_write("sleep", (char *)&sleep_config, sizeof(sleep_config_t));
+
+    innotech_config_copy();
 }
 
 void* innotech_config_get_handle(void)

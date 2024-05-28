@@ -24,6 +24,9 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+
+#include "innotech_meter.h"
+
 #define BTN_GPIO_NUM          45
 
 static uint8_t factory_reset_flag = 0;
@@ -68,8 +71,12 @@ void innotech_button_process(void)
     if(key_count >= 600)
     {
         factory_reset_flag = 1;
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-        innotech_factory_reset();
+        if(first_key_press == 1)
+        {
+            first_key_press = 0;
+            innotech_default_device_config();
+            innotech_clear_consume();
+        }
     }else if(key_count >= 300 && key_count < 600)
     {
         factory_reset_flag = 2;
@@ -87,5 +94,4 @@ void innotech_button_process(void)
 void innotech_button_init(void)
 {
     innotech_gpio_mode_init(BTN_GPIO_NUM, 1, 0, 0, 0);
-    first_key_press = 0;
 }
