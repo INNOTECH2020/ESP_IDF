@@ -32,6 +32,7 @@
 #include "innotech_rtc.h"
 
 #define TAG "INNOTECH_WEATHER"
+#define MAX_RETRY 3
 
 /**
  * @brief See more at https://dev.qweather.com/docs/api/
@@ -338,6 +339,30 @@ esp_err_t response_handler(esp_http_client_event_t *evt)
     return ESP_OK;
 }
 
+void innotech_HttpRequest(esp_http_client_handle_t client, void *url_request) {
+    esp_err_t err;
+    int retry_count = 0;
+
+    while (retry_count < MAX_RETRY) {
+        err = esp_http_client_perform(client);
+        if (err == ESP_OK) {
+            break;
+        } else {
+            ESP_LOGW(TAG, "HTTP POST request failed: %s. Retrying in 1 second...\n", esp_err_to_name(err));
+            vTaskDelay(pdMS_TO_TICKS(1000)); 
+            retry_count++;
+        }
+    }
+
+    esp_http_client_cleanup(client);
+
+    if (url_request) {
+        heap_caps_free(url_request);
+    }
+
+    return ;
+}
+
 esp_err_t app_weather_request(void)
 {
     char *url_request = heap_caps_malloc(200, MALLOC_CAP_SPIRAM);
@@ -373,15 +398,7 @@ esp_err_t app_weather_request(void)
     // esp_http_client_set_header(client, "Accept", "*/*");
 
     // Send the request
-    esp_err_t err = esp_http_client_perform(client);
-    if (err != ESP_OK) {
-       ESP_LOGW(TAG, "HTTP POST request failed: %s\n", esp_err_to_name(err));
-    }
-
-    esp_http_client_cleanup(client);
-    if (url_request) {
-        heap_caps_free(url_request);
-    }
+    innotech_HttpRequest(client,url_request);
 
     return ESP_OK;
 }
