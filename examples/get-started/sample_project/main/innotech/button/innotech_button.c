@@ -42,6 +42,7 @@ void innotech_button_process(void)
     static uint32_t key_count = 0;
     innotech_config_t *innotech_config = (innotech_config_t *)innotech_config_get_handle();
     uint8_t key_state = innotech_read_gpio_level(BTN_GPIO_NUM);
+    char cmd[16] = {0};
 
     if(key_state == 0)
     {
@@ -59,6 +60,8 @@ void innotech_button_process(void)
             innotech_config->power_switch = 1;
         }
         innotech_set_relay_status(innotech_config->power_switch);
+        memcpy(cmd, "PowerSwitch", strlen("PowerSwitch")+1);
+        mqtt_send_device_info(cmd);
     }
     else
     {
