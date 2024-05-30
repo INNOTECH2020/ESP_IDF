@@ -39,6 +39,7 @@
 #include "mqtt_client.h"
 #include "mqtt_ca.h"
 
+#include "innotech_rtc.h"
 #include "innotech_meter.h"
 
 /* FreeRTOS event group to signal when we are connected*/
@@ -155,7 +156,7 @@ void mqtt_send_device_energy(void)
     char get_cmd[] = "energy";
     char id[] = "27";
     char version[] = "1.0";
-    if(innotech_wifi_state_get() == 1)
+    if(disconnet_flag == 0)
     {
         mqtt_json_pack(get_cmd, id, version, payload);
         esp_mqtt_client_publish(client, mqtt_type.pub_topic, payload, strlen(payload), 0, 0);
@@ -233,6 +234,26 @@ void mqtt_send_ota_step(void)
             esp_restart();
         }
     }
+}
+
+void mqtt_send_factory_reset(void)
+{
+    char payload[1024] = {0};
+    char timestamp[11] = {0};
+    
+    sprintf(timestamp,"%lld", innotech_timestamp_get());
+    mqtt_ota_pack_timestamp(timestamp, payload);
+    esp_mqtt_client_publish(client, mqtt_type.reset_report_topic, payload, strlen(payload), 0, 0);
+}
+
+void mqtt_send_power_overload(void)
+{
+    char payload[1024] = {0};
+    char timestamp[11] = {0};
+
+    sprintf(timestamp,"%lld", innotech_timestamp_get());
+    mqtt_ota_pack_timestamp(timestamp, payload);
+    esp_mqtt_client_publish(client, mqtt_type.power_topic, payload, strlen(payload), 0, 0);
 }
 
 /*

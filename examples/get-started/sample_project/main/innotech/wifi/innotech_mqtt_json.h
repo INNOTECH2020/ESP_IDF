@@ -35,6 +35,7 @@ void mqtt_json_unpack_ota(char *iot_json, char *method, char *id, char *version)
 int mqtt_ota_json_unpack(char *json_data, char *id, char *version, char *ota_url, char *taskId);
 void mqtt_ota_pack_reply(char *id, char *version, char *taskId, char *package_msg);
 void mqtt_ota_pack_step(char *id, char *version, char *taskId, int step, char *package_msg);
+void mqtt_ota_pack_timestamp(char *timestamp, char *package_msg);
 
 #ifdef __cplusplus
 }

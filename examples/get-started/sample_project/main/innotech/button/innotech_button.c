@@ -86,6 +86,8 @@ void innotech_button_process(void)
         if(first_key_press == 0)
         {
             first_key_press = 1;
+            mqtt_send_factory_reset();
+            vTaskDelay(4000 / portTICK_PERIOD_MS);
             innotech_wifi_restore();
             vTaskDelay(1000 / portTICK_PERIOD_MS);
             innotech_ble_init();

@@ -601,3 +601,21 @@ void mqtt_ota_pack_step(char *id, char *version, char *taskId, int step, char *p
 	}
 
 }
+
+void mqtt_ota_pack_timestamp(char *timestamp, char *package_msg)
+{
+	cJSON *IOTJSObject = NULL;
+	char *iot_json = NULL;
+
+	//pack msg
+	if((IOTJSObject = cJSON_CreateObject()) != NULL)
+	{
+		cJSON_AddItemToObject(IOTJSObject, "TimeStamp", cJSON_CreateString(timestamp));   		 
+
+		iot_json = cJSON_PrintUnformatted(IOTJSObject);  
+		sprintf(package_msg, "%s", iot_json);
+		printf("pack:%s\n", package_msg);
+		free((void *)iot_json);
+		cJSON_Delete(IOTJSObject);
+	}
+}
