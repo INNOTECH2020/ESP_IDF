@@ -40,6 +40,8 @@ uint8_t innotech_factory_flag_get(void)
 void innotech_button_process(void)
 {
     static uint32_t key_count = 0;
+    static uint32_t delay_tick = 0;
+    static uint32_t wifi_reset_flag = 0;
     innotech_config_t *innotech_config = (innotech_config_t *)innotech_config_get_handle();
     uint8_t key_state = innotech_read_gpio_level(BTN_GPIO_NUM);
     char cmd[16] = {0};
@@ -87,13 +89,22 @@ void innotech_button_process(void)
         {
             first_key_press = 1;
             mqtt_send_factory_reset();
-            vTaskDelay(4000 / portTICK_PERIOD_MS);
-            innotech_wifi_restore();
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-            innotech_ble_init();
             innotech_power_switch_change_clear();
+            wifi_reset_flag = 1;
         }
     }
+
+    if(wifi_reset_flag == 1)
+    {
+        if(++delay_tick > 100)
+        {
+            delay_tick = 0;
+            innotech_wifi_restore();
+            innotech_ble_init();
+            wifi_reset_flag = 0;
+        }
+    }
+    
 }
 
 void innotech_button_init(void)
