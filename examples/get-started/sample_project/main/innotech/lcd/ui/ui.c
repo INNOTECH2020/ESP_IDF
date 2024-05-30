@@ -228,13 +228,20 @@ void lvgl_blink_callback(void)
     if((innotech_config->power_switch == 1) && (last_flag == 0))
     {
         lv_disp_load_scr(ui_Screen4);
-        last_flag = 1;
+        if((innotech_wifi_config_flag_get() == WIFI_CONFIG_SUC))
+        {
+            last_flag = 4;
+        }else
+        {
+            last_flag = 1;
+        }
+        
     }else if(last_flag != 0)
     {
         if(innotech_get_ota_start_flag() == 1)
         {
             lv_disp_load_scr(ui_Screen8);
-        }else if((innotech_wifi_config_flag_get() == WIFI_CONFIG_SUC) || (last_flag == 4))
+        }else if((last_flag == 4))
         {
             lv_disp_load_scr(ui_Screen3);//The interface for displaying time
         }else//Normal distribution network
@@ -275,8 +282,10 @@ void lvgl_blink_callback(void)
     if(innotech_factory_flag_get() == 1)
     {
         lv_disp_load_scr(ui_Screen13);
+        last_flag = 1;
     }else if(innotech_factory_flag_get() == 2)
     {
+        last_flag = 1;
         lv_disp_load_scr(ui_Screen1);
     }
     

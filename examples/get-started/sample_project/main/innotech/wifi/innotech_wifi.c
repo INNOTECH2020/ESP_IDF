@@ -128,6 +128,10 @@ uint8_t innotech_wifi_config_flag_get(void)
     return wifi_config.flag;
 }
 
+void innotech_wifi_config_flag_set(uint8_t flag) 
+{
+    wifi_config.flag = flag;
+}
 void innotech_wifi_config_reset(void) 
 {
     memset(&wifi_config, 0, sizeof(wifi_param_t));
@@ -511,8 +515,8 @@ void wifi_init_sta(wifi_param_t wifi)
         if(wifi.flag == WIFI_CONFIG_FAIL)
         {
             wifi.flag = WIFI_CONFIG_SUC;
-            memcpy(&wifi_config, &wifi, sizeof(wifi_param_t));
-            innotech_flash_write("wifi", (char *)&wifi_config, sizeof(wifi_param_t));
+            innotech_flash_write("wifi", (char *)&wifi, sizeof(wifi_param_t));
+            innotech_wifi_config_flag_set(WIFI_CONFIG_SUC);
             if (wifi_connect_result != NULL)
             {
                 wifi_connect_result(1);

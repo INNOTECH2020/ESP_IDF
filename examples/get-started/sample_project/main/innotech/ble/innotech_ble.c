@@ -565,7 +565,7 @@ void innotech_ble_init(void)
     {
         return;
     }
-    
+    pre_wifi = 0;
     esp_err_t ret;
     aliyun_triad_t *triad_config = (aliyun_triad_t *)innotech_triad_get_handle();
     // ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
