@@ -293,7 +293,6 @@ void lvgl_blink_callback(void)
         }
     }
     
-    printf("innotech_pre_wifi()  == %d\n",innotech_pre_wifi());
     if((innotech_factory_flag_get() == 1) && (factory_blink_time <= 3))
     {
         factory_blink_time ++;
