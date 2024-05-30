@@ -19,6 +19,7 @@
 #include "innotech_config.h"
 #include "innotech_factory.h"
 #include "innotech_relay.h"
+#include "ui/ui.h"
 #include "driver/gpio.h"
 #include "innotech_button.h"
 #include "innotech_meter.h"
@@ -53,12 +54,14 @@ bool innotech_factory_get(void)
 
 void innotech_factory_reset(void)
 {
+    
     innotech_default_device_config();
     innotech_clear_consume();  
     innotech_wifi_restore();
     vTaskDelay(1000 / portTICK_PERIOD_MS);
     innotech_ble_init();
-    innotech_power_switch_change_clear();     
+    innotech_power_switch_change_clear();    
+    innotech_set_last_flag(0); 
 }
 
 int power_tick_callback(void)

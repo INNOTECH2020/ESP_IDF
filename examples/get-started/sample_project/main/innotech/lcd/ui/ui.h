@@ -243,6 +243,7 @@ LV_FONT_DECLARE(ui_font_R108);
 LV_FONT_DECLARE(ui_font_R81);
 
 void ui_init(void);
+void innotech_set_last_flag(uint8_t flag);
 
 #ifdef __cplusplus
 } /*extern "C"*/

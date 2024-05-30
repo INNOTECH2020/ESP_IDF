@@ -218,7 +218,13 @@ const lv_img_dsc_t * ui_imgset_[48] = {&ui_img_1_png, &ui_img_10_png, &ui_img_11
 
 ///////////////////// ANIMATIONS ////////////////////
 static uint8_t last_blink_time = 0;
-static uint8_t last_flag= 0;
+static uint8_t factory_blink_time = 0;
+uint8_t last_flag= 0;
+
+void innotech_set_last_flag(uint8_t flag)
+{
+    last_flag = flag;
+}
 // static bool key_flag = 0;
 ///////////////////// FUNCTIONS ////////////////////
 void lvgl_blink_callback(void)
@@ -227,17 +233,26 @@ void lvgl_blink_callback(void)
     innotech_config_t *innotech_config = (innotech_config_t *)innotech_config_get_handle();
     if((innotech_config->power_switch == 1) && (last_flag == 0))
     {
+        last_blink_time  ++;
         lv_disp_load_scr(ui_Screen4);
-        if((innotech_wifi_config_flag_get() == WIFI_CONFIG_SUC))
+        if(last_blink_time >= 3)
         {
-            last_flag = 4;
-        }else
-        {
-            last_flag = 1;
+            last_blink_time = 0;
+            if((innotech_wifi_config_flag_get() == WIFI_CONFIG_SUC))
+            {
+                last_flag = 4;
+            }else
+            {
+                last_flag = 1;
+            }
         }
-        
     }else if(last_flag != 0)
     {
+        
+        if(innotech_factory_flag_get() != 1)
+        {
+            factory_blink_time = 0;
+        }
         if(innotech_get_ota_start_flag() == 1)
         {
             lv_disp_load_scr(ui_Screen8);
@@ -255,7 +270,7 @@ void lvgl_blink_callback(void)
             {
                 last_blink_time  ++;
                 lv_disp_load_scr(ui_Screen2);
-                if(last_blink_time == 5)
+                if(last_blink_time >= 5)
                 {
                     last_flag = 3;
                     last_blink_time = 0;
@@ -265,7 +280,7 @@ void lvgl_blink_callback(void)
             {
                 last_blink_time  ++;
                 lv_disp_load_scr(ui_Screen6);
-                if(last_blink_time == 5)
+                if(last_blink_time >= 5)
                 {
                     last_flag = 4;
                     last_blink_time = 0;
@@ -278,16 +293,17 @@ void lvgl_blink_callback(void)
         }
     }
     
-
-    if(innotech_factory_flag_get() == 1)
+    printf("innotech_pre_wifi()  == %d\n",innotech_pre_wifi());
+    if((innotech_factory_flag_get() == 1) && (factory_blink_time <= 3))
     {
+        factory_blink_time ++;
         lv_disp_load_scr(ui_Screen13);
-        last_flag = 1;
+        last_flag = 0;
     }else if(innotech_factory_flag_get() == 2)
     {
         last_flag = 1;
         lv_disp_load_scr(ui_Screen1);
-    }
+    }  
     
     
     example_lvgl_unlock();
