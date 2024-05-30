@@ -232,7 +232,9 @@ static esp_err_t app_weather_parse_now(char *buffer)
             {
                 uint8_t weather_id = cJSON_GetObjectItem(now_json, "weather_id")->valueint;
                 weather_info.icon_code = lcd_icon_id_get(weather_id);
+                weather_info.humid = cJSON_GetObjectItem(now_json, "humidity")->valueint;
                 ESP_LOGI(TAG, "Icon : [%d]", weather_info.icon_code);
+                ESP_LOGI(TAG, "Humid: [%d]", weather_info.humid);
             }
             if( (daily_json = cJSON_GetObjectItem(data_json, "daily")) != NULL )
             {
@@ -243,9 +245,7 @@ static esp_err_t app_weather_parse_now(char *buffer)
 
                     weather_info.temp_max = cJSON_GetObjectItem(daily_item, "temp_high")->valueint;
                     weather_info.temp_min = cJSON_GetObjectItem(daily_item, "temp_low")->valueint;
-                    weather_info.humid = cJSON_GetObjectItem(daily_item, "humidity")->valueint;
                     ESP_LOGI(TAG, "Temp : %d/%d", weather_info.temp_max, weather_info.temp_min);
-                    ESP_LOGI(TAG, "Humid: [%d]", weather_info.humid);
                 } else 
                 {
                     ESP_LOGE(TAG, "Error parsing object - [%s] - [%d]", __FILE__, __LINE__);
