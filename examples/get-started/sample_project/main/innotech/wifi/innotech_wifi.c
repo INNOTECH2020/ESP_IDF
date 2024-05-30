@@ -244,9 +244,10 @@ void mqtt_send_factory_reset(void)
 {
     char payload[1024] = {0};
     char timestamp[11] = {0};
-    
+    char id[] = "1102";
+
     sprintf(timestamp,"%lld", innotech_timestamp_get());
-    mqtt_ota_pack_timestamp(timestamp, payload);
+    mqtt_timestamp_pack(id, timestamp, payload);
     esp_mqtt_client_publish(client, mqtt_type.reset_report_topic, payload, strlen(payload), 0, 0);
 }
 
@@ -254,9 +255,10 @@ void mqtt_send_power_overload(void)
 {
     char payload[1024] = {0};
     char timestamp[11] = {0};
+    char id[] = "1102";
 
     sprintf(timestamp,"%lld", innotech_timestamp_get());
-    mqtt_ota_pack_timestamp(timestamp, payload);
+    mqtt_timestamp_pack(id, timestamp, payload);
     esp_mqtt_client_publish(client, mqtt_type.power_topic, payload, strlen(payload), 0, 0);
 }
 

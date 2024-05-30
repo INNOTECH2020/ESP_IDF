@@ -601,13 +601,20 @@ void innotech_overload_buzzer(void)
     int power = (int)innotech_power_get();
     double current = innotech_current_get();
     int volt = (int)innotech_voltage_get();
+    static uint8_t overload_report = 0;
     if(innotech_config_buzzer->line_diameter == 1.5)
     {
+        
         if(volt < 250)
         {
             if(current >= 16.0)
             {
                 stop_flag = 0;
+                if(overload_report == 1)
+                {
+                    overload_report = 0;
+                    mqtt_send_power_overload();
+                }
             }
             // 
             if(current >= 16.0 && current < 17.6)
@@ -615,7 +622,6 @@ void innotech_overload_buzzer(void)
                 if(inntech_buzzer_timer(12) == 12)
                 {
                     innotech_set_relay_status(0);
-                    mqtt_send_power_overload();
                     meter_protect_flag = 1;
                 }
             }else if(current >= 17.6 && current < 19.2)
@@ -623,7 +629,6 @@ void innotech_overload_buzzer(void)
                 if(inntech_buzzer_timer(6) == 6)
                 {
                     innotech_set_relay_status(0);
-                    mqtt_send_power_overload();
                     meter_protect_flag = 1;
                 }
             }else if(current >= 19.2)
@@ -631,24 +636,32 @@ void innotech_overload_buzzer(void)
                 if(inntech_buzzer_timer(3) == 3)
                 {
                     innotech_set_relay_status(0);
-                    mqtt_send_power_overload();
                     meter_protect_flag = 1;
                 }
             }else if(current >= 0 && current < 16.0)
             {
                 stop_flag = 1;
+                overload_report = 1;
                 innotech_buzzer_pwm_write(0);
                 idx = 0;
             }
             
         }else 
         {
+            if(power > 4000)
+            {
+                stop_flag = 0;
+                if(overload_report == 1)
+                {
+                    overload_report = 0;
+                    mqtt_send_power_overload();
+                }
+            }
             if(power > 4000 && power <= 4400)
             {
                 if(inntech_buzzer_timer(12) == 12)
                 {
                     innotech_set_relay_status(0);
-                    mqtt_send_power_overload();
                     meter_protect_flag = 1;
                 }
             }else if(power > 4400 && power <= 4800)
@@ -656,7 +669,6 @@ void innotech_overload_buzzer(void)
                 if(inntech_buzzer_timer(6) == 6)
                 {
                     innotech_set_relay_status(0);
-                    mqtt_send_power_overload();
                     meter_protect_flag = 1;
                 }
             }else if(power > 4800)
@@ -664,11 +676,13 @@ void innotech_overload_buzzer(void)
                 if(inntech_buzzer_timer(3) == 3)
                 {
                     innotech_set_relay_status(0);
-                    mqtt_send_power_overload();
                     meter_protect_flag = 1;
                 }
             }else if(power < 4000)
             {
+                stop_flag = 1;
+                overload_report = 1;
+                innotech_buzzer_pwm_write(0);
                 idx = 0;
             }
         }
@@ -680,13 +694,17 @@ void innotech_overload_buzzer(void)
             if(current >= 25.0)
             {
                 stop_flag = 0;
+                if(overload_report == 1)
+                {
+                    overload_report = 0;
+                    mqtt_send_power_overload();
+                }
             }
             if(current >= 25.0 && current < 27.5)
             {
                 if(inntech_buzzer_timer(12) == 12)
                 {
                     innotech_set_relay_status(0);
-                    mqtt_send_power_overload();
                     meter_protect_flag = 1;
                 }
             }else if(current >= 27.5 && current < 30.0)
@@ -694,7 +712,6 @@ void innotech_overload_buzzer(void)
                 if(inntech_buzzer_timer(6) == 6)
                 {
                     innotech_set_relay_status(0);
-                    mqtt_send_power_overload();
                     meter_protect_flag = 1;
                 }
             }else if(current >= 30.0)
@@ -702,7 +719,6 @@ void innotech_overload_buzzer(void)
                 if(inntech_buzzer_timer(3) == 3)
                 {
                     innotech_set_relay_status(0);
-                    mqtt_send_power_overload();
                     meter_protect_flag = 1;
                 }
             }else if(current >= 0 && current < 25.0)
@@ -713,6 +729,15 @@ void innotech_overload_buzzer(void)
             }
         }else 
         {
+            if(power > 6250)
+            {
+                stop_flag = 0;
+                if(overload_report == 1)
+                {
+                    overload_report = 0;
+                    mqtt_send_power_overload();
+                }
+            }
             if(power >= 6250 && power <= 6875)
             {
                 if(inntech_buzzer_timer(12) == 12)
@@ -739,6 +764,9 @@ void innotech_overload_buzzer(void)
                 }
             }else if(power < 6250)
             {             
+                stop_flag = 1;
+                overload_report = 1;
+                innotech_buzzer_pwm_write(0);
                 idx = 0;
             }
         }
@@ -747,16 +775,21 @@ void innotech_overload_buzzer(void)
     {
         if(volt < 250)
         {
+            
             if(current >= 32.0)
             {
                 stop_flag = 0;
+                if(overload_report == 1)
+                {
+                    overload_report = 0;
+                    mqtt_send_power_overload();
+                }
             }
             if(current >= 32.0 && current < 35.2)
             {
                 if(inntech_buzzer_timer(12) == 12)
                 {
                     innotech_set_relay_status(0);
-                    mqtt_send_power_overload();
                     meter_protect_flag = 1;
                 }
             }else if(current >= 35.2 && current < 38.4)
@@ -764,7 +797,6 @@ void innotech_overload_buzzer(void)
                 if(inntech_buzzer_timer(6) == 6)
                 {
                     innotech_set_relay_status(0);
-                    mqtt_send_power_overload();
                     meter_protect_flag = 1;
                 }
             }else if(current >= 38.4)
@@ -772,7 +804,6 @@ void innotech_overload_buzzer(void)
                 if(inntech_buzzer_timer(3) == 3)
                 {
                     innotech_set_relay_status(0);
-                    mqtt_send_power_overload();
                     meter_protect_flag = 1;
                 }
             }else if(current >= 0 && current < 32.0)
@@ -783,12 +814,20 @@ void innotech_overload_buzzer(void)
             }
         }else 
         {
+            if(power > 8000)
+            {
+                stop_flag = 0;
+                if(overload_report == 1)
+                {
+                    overload_report = 0;
+                    mqtt_send_power_overload();
+                }
+            }
             if(power > 8000 && power <= 8800)
             {
                 if(inntech_buzzer_timer(12) == 12)
                 {
                     innotech_set_relay_status(0);
-                    mqtt_send_power_overload();
                     meter_protect_flag = 1;
                 }
             }else if(power > 8800 && power <= 9600)
@@ -796,7 +835,6 @@ void innotech_overload_buzzer(void)
                 if(inntech_buzzer_timer(6) == 6)
                 {
                     innotech_set_relay_status(0);
-                    mqtt_send_power_overload();
                     meter_protect_flag = 1;
                 }
             }else if(power > 9600)
@@ -804,11 +842,13 @@ void innotech_overload_buzzer(void)
                 if(inntech_buzzer_timer(3) == 3)
                 {
                     innotech_set_relay_status(0);
-                    mqtt_send_power_overload();
                     meter_protect_flag = 1;
                 }
             }else if(power < 8000)
             {
+                stop_flag = 1;
+                overload_report = 1;
+                innotech_buzzer_pwm_write(0);
                 idx = 0;
             }
         }
