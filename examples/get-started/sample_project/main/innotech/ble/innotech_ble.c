@@ -631,7 +631,7 @@ void innotech_ble_connect_timeout(void)
     if (adv_start_flag == 1) 
     {
         adv_start_flag = 0;
-        esp_ble_gap_stop_advertising();
+        xTaskCreate(bt_release_task,"bt_release",2500,NULL,20,NULL);
     }
 }
 
