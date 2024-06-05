@@ -114,7 +114,6 @@ int vol_tick_callback(void)
 void innotech_factory_init(void)
 {
     uint8_t tick = 0;
-    uint8_t recode_tick = 0;
     static uint8_t power_tick_flag = 0;
     static uint8_t vol_tick_flag = 0;
     uint8_t first_factory_buzzer = 0;
@@ -144,17 +143,46 @@ void innotech_factory_init(void)
     
     while(factory_flag)
     {
+        static int activepower_flag = 0;
+        static int activepower = 0;
         innotech_button_process();
         innotech_meter_process();
         innotech_lcd_process();
-
-
-        if(recode_tick % 15 == 0)
+        activepower = fix_power_factory();
+        if((activepower != 0))
         {
-            power_tick_array[power_tick_flag++] = fix_power_factory();
-            vol_tick_array[vol_tick_flag++] = fix_vol_factory();
-            power_tick_flag %= 10;
-            vol_tick_flag %= 10;
+            if(activepower_flag < 10)
+            {
+                activepower_flag ++;
+            }
+        }else if(activepower == 0)
+        {
+            activepower_flag = 0;
+
+        }
+
+        if(tick % 15 == 0)
+        {
+            if(fix_flag == 0)
+            {
+                power_tick_array[power_tick_flag++] = fix_power_factory();
+                vol_tick_array[vol_tick_flag++] = fix_vol_factory();
+                power_tick_flag %= 10;
+                vol_tick_flag %= 10;
+            }else
+            {
+                if(activepower_flag >= 5)
+                {
+                    power_tick_array[power_tick_flag++] = fix_power_factory();
+                    vol_tick_array[vol_tick_flag++] = fix_vol_factory();
+                }else if(activepower_flag == 0)
+                {
+                    power_tick_array[power_tick_flag++] = 0;
+                }
+                power_tick_flag %= 10;
+                vol_tick_flag %= 10;
+            }
+            
         }
         
         
@@ -197,12 +225,6 @@ void innotech_factory_init(void)
             stop_flag = 1;
             innotech_buzzer_pwm_write(0);
             idx = 0;
-        }
-
-        recode_tick ++;
-        if(recode_tick >= 90)
-        {
-            recode_tick = 0;
         }
         
         vTaskDelay(50 / portTICK_PERIOD_MS);
