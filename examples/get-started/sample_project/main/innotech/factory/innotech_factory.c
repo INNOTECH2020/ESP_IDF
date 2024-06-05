@@ -166,24 +166,7 @@ void innotech_factory_init(void)
                 power_tick = power_tick_callback();
                 vol_tick = vol_tick_callback();
                 printf("power_tick %d  vol_tick %d\n",power_tick,vol_tick);
-                if(check_down == 1)
-                {
-                    if(vol_tick > 0 && power_tick > 0)
-                    {
-                        if(((fix_num * power_tick > 150) && (fix_num * power_tick < 300)) && ((fix_vol_num * vol_tick > 215) && (fix_vol_num * vol_tick < 225)))
-                        {
-                            fix_num = (double)200 / power_tick;
-                            fix_vol_num = (double) 220 / vol_tick;
-                            if(fix_num != 0 && fix_vol_num != 0)
-                            {
-                                fix_flag = 1;
-                                innotech_flash_write("fix_vol_num", (char *)&fix_vol_num, sizeof(double));
-                                innotech_flash_write("fix_num", (char *)&fix_num, sizeof(double));
-                                printf("fix_num = %f fix_vol_num = %f\n", fix_num,fix_vol_num);
-                            }
-                        }
-                    }
-                }else if(vol_tick > 0 && power_tick > 0)
+                if(vol_tick > 0 && power_tick > 0)
                 {
                     fix_num = (double)200 / power_tick;
                     fix_vol_num = (double) 220 / vol_tick;
