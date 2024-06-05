@@ -678,7 +678,8 @@ void innotech_lcd_pre_init(void)
     spi_init();
     ESP_LOGI(TAG, "Display LVGL Scatter Chart");
     //Lock the mutex due to the LVGL APIs are not thread-safe
-    innotech_led_pwm_write(100);
+    
+    vTaskDelay(pdMS_TO_TICKS(50));
     example_lvgl_lock(0);
     lv_disp_t * dispp = lv_disp_get_default();
     lv_theme_t * theme = lv_theme_default_init(dispp, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED),
@@ -688,7 +689,8 @@ void innotech_lcd_pre_init(void)
     ui____initial_actions0 = lv_obj_create(NULL);
     
     lv_disp_load_scr(ui_Screen11);
-
+    innotech_led_pwm_write(100);
+    vTaskDelay(pdMS_TO_TICKS(100));
     example_lvgl_unlock();
 }
 
