@@ -20,6 +20,7 @@
 #include "innotech_wifi.h"
 #include "innotech_ble.h"
 #include "innotech_lcd.h"
+#include "innotech_device.h"
 #include "api_bridge.h"
 
 #include "freertos/FreeRTOS.h"
@@ -75,6 +76,7 @@ void innotech_button_process(void)
 
     if(key_count >= 600)
     {
+        innotech_set_ble_tick();
         factory_reset_flag = 1;
         if(first_key_press == 1)
         {
@@ -84,6 +86,7 @@ void innotech_button_process(void)
         }
     }else if(key_count >= 300 && key_count < 600)
     {
+        innotech_set_ble_tick();
         factory_reset_flag = 2;
         if(first_key_press == 0)
         {

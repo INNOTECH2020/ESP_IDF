@@ -37,6 +37,11 @@ void innotech_update_save_tick(void)
     time_tick = 0;
 }
 
+void innotech_set_ble_tick(void)
+{
+    ble_tick = 0;
+}
+
 void innotech_device_service_start(void)
 {
     

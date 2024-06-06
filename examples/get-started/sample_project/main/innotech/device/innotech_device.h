@@ -42,6 +42,7 @@ void innotech_device_service_start(void);
 void innotech_device_update_state(void);
 void innotech_device_service_stop(void);
 void innotech_device_init(void);
+void innotech_set_ble_tick(void);
 
 #ifdef __cplusplus
 }
