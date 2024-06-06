@@ -4,32 +4,29 @@
 // Project name: SquareLine_Project
 
 #include "../ui.h"
-#include<string.h>
+#include <string.h>
 #include "innotech_meter.h"
 #include "innotech_config.h"
 #include "api_bridge.h"
 #include "innotech_wifi.h"
 #include "innotech_factory.h"
-
-static char input_buf[19] = {0};
-static char output_buf[20] = {0};
+static char input_buf[18] = {0};
+static char output_buf[18] = {0};
 
 
 static aliyun_triad_t triad_config_success;
-void array_convert(void)
+void array_convert(char *input)
 {
-    uint8_t input_idx = 0;
-    uint8_t output_idx = 0;
-    for(int i = 0;i < 6;i++)
-    {
-        output_buf[output_idx++] = input_buf[input_idx++];
-        output_buf[output_idx++] = input_buf[input_idx++];
-        if(output_idx != 18)
-        {
-            output_buf[output_idx++] = '.';
+    int len = strlen(input);
+    int out_index = 0;
+    strcpy(output_buf, input);
+    for (int i = 0; i < len; i++) {
+        output_buf[out_index++] = input[i];
+        if (i % 2 == 1 && i < 10) {
+            output_buf[out_index++] = '.';
         }
     }
-    output_buf[output_idx] = '\0';
+    output_buf[17] = '\0';
 }
 
 uint8_t adjust_aliyun_success(void)
@@ -122,7 +119,7 @@ void factory_show_timer(void)
     }
     strncpy(input_buf, triad_config_success.devicename, sizeof(input_buf) - 1);
     //show mac
-    array_convert();
+    array_convert(input_buf);
     lv_label_set_text(ui_Label65,output_buf);
 
     
@@ -235,7 +232,7 @@ void ui_Screen11_screen_init(void)
     lv_obj_set_x(ui_Label104, -184);
     lv_obj_set_y(ui_Label104, -111);
     lv_obj_set_align(ui_Label104, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label104, "0000");
+    lv_label_set_text(ui_Label104, "0.00");
     lv_obj_set_style_text_font(ui_Label104, &ui_font_B108, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label105 = lv_label_create(ui_Screen11);
@@ -244,7 +241,7 @@ void ui_Screen11_screen_init(void)
     lv_obj_set_x(ui_Label105, 83);
     lv_obj_set_y(ui_Label105, -111);
     lv_obj_set_align(ui_Label105, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label105, "000.00");
+    lv_label_set_text(ui_Label105, "0.00");
     lv_obj_set_style_text_font(ui_Label105, &ui_font_B108, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label106 = lv_label_create(ui_Screen11);
@@ -253,7 +250,7 @@ void ui_Screen11_screen_init(void)
     lv_obj_set_x(ui_Label106, -170);
     lv_obj_set_y(ui_Label106, -33);
     lv_obj_set_align(ui_Label106, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label106, "00.00");
+    lv_label_set_text(ui_Label106, "0.00");
     lv_obj_set_style_text_font(ui_Label106, &ui_font_B108, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label107 = lv_label_create(ui_Screen11);
@@ -262,7 +259,7 @@ void ui_Screen11_screen_init(void)
     lv_obj_set_x(ui_Label107, 95);
     lv_obj_set_y(ui_Label107, -34);
     lv_obj_set_align(ui_Label107, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label107, "00000.0");
+    lv_label_set_text(ui_Label107, "0.00");
     lv_obj_set_style_text_font(ui_Label107, &ui_font_B108, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label109 = lv_label_create(ui_Screen11);
