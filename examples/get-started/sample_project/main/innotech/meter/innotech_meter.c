@@ -74,6 +74,7 @@ DRAM_ATTR float consumption = 0;
 double consume = 0;
     
 static uint8_t meter_protect_flag = 0;
+static uint8_t zero_power_tick = 0;
 
 static int mid_power = 0;
 static uint8_t buzzer_delay = 0;
@@ -310,26 +311,37 @@ uint8_t innotech_get_meter_protect(void)
 int power_always_callback()
 {
     int max_count = 0; 
-    int max_num = power_cnt_num[0];
+    int max_num = 0;
     int count = 0; 
     int i, j;
  
-    for (i = 0; i < 30; i++) {
+    for (i = 0; i < 30; i++) 
+    {
         count = 0;
-        for (j = 0; j < 30; j++) {
-            if (power_cnt_num[i] == power_cnt_num[j] && power_cnt_num[j] != 0) {
+        zero_power_tick = 0;
+        for (j = 0; j < 30; j++) 
+        {
+            if (power_cnt_num[i] == power_cnt_num[j] && power_cnt_num[j] != 0) 
+            {
                 count++; 
             }
+            if(power_cnt_num[j] != 0)
+            {
+                zero_power_tick++;
+            }
+            else
+            {
+                zero_power_tick = 0;
+            }
         }
-        if (count > max_count) {
+        if (count > max_count && zero_power_tick == 30 )
+        {
             max_count = count;
             max_num = power_cnt_num[i];
         }
+        
     }
-    if(bl0937_getActivePower() == 0.0)
-    {
-        max_num = 0;
-    }
+
     return max_num;
 }
 
@@ -482,15 +494,21 @@ void innotech_meter_process(void)
     if((queue_cnt % 15) == 0)
     {
         activepower = (int)bl0937_getActivePower();
-        if((activepower != 0) && (activepower < 10000))
+        if(activepower != 0)
         {
-            if(activepower_flag < 10)
+            if (activepower > 10000)
+            {
+                activepower = 0;
+            }
+            else if(activepower_flag < 10)
             {
                 activepower_flag ++;
             }
-        }else if(activepower == 0)
+        }
+        else if(activepower == 0)
         {
             activepower_flag = 0;
+            memset(power_cnt_num, 0, sizeof(power_cnt_num));
         }
 
         if(activepower_flag >= 5)
@@ -550,7 +568,7 @@ void innotech_meter_process(void)
                 energy.power = 8000;
             }else 
             {
-                if((abs(mid_power - energy.power) > 3) && (mid_power > 5))
+                if((abs(mid_power - energy.power) > 3) && (mid_power > 5) && mid_power < 10000)
                 {
                     energy.power = mid_power;
                 }else if(mid_power <= 5)
@@ -558,17 +576,14 @@ void innotech_meter_process(void)
                     energy.power = 0;
                 }
             }
-            // printf("fix_num    =========== %f   fix_vol_num == %f\n",fix_num,fix_vol_num);
+
             if(abs(pre_vol - energy.voltage) > 3 && pre_vol != 0)
             {
                 energy.voltage = pre_vol;
             }
         }
-        
-        
+             
         queue_cnt = 0;
-        
-        //printf("pre_vol = %f  energy.power== %f current_ = %f\n",energy.voltage,energy.power,energy.current);
     } 
     queue_cnt ++;
 }
