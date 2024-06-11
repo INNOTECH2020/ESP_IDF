@@ -84,6 +84,7 @@ static void innotech_rtc_thread(void *arg)
 
     while(1)
     {
+        uint8_t hour;
         time(&now);
         localtime_r(&now, &timeinfo);
         //printf("[sync time]%d-%d-%d %d:%d:%d week:%d\n", timeinfo.tm_year+1900, timeinfo.tm_mon+1, 
@@ -93,8 +94,15 @@ static void innotech_rtc_thread(void *arg)
 			if(innotech_config->timer[i].enable == 1)
 			{
 				uint8_t onoff = innotech_config->timer[i].onoff;
-				uint8_t hour = atoi((char *)&(innotech_config->timer[i].time[3]));
+				
 				uint8_t min = atoi((char *)&(innotech_config->timer[i].time[0]));
+                if(min >= 10)
+                {
+                    hour = atoi((char *)&(innotech_config->timer[i].time[3]));
+                }else
+                {
+                    hour = atoi((char *)&(innotech_config->timer[i].time[2]));
+                }
 				uint8_t repeat = timer_repeat_get(innotech_config->timer[i].repeat, strlen((char *)innotech_config->timer[i].repeat)+1);
                 
                 printf("timer[%d]:onoff:%d, time %d:%d, repeat: %d \r\n", i, onoff, hour, min, repeat);
