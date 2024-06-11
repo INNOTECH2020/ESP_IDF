@@ -24,6 +24,7 @@
 #include "innotech_button.h"
 #include "innotech_meter.h"
 #include "innotech_lcd.h"
+#include "innotech_device.h"
 #include "innotech_ble.h"
 #include "api_bridge.h"
 
@@ -54,7 +55,7 @@ bool innotech_factory_get(void)
 
 void innotech_factory_reset(void)
 {
-    
+    innotech_set_ble_tick();
     innotech_default_device_config();
     innotech_clear_consume();  
     innotech_wifi_restore();
