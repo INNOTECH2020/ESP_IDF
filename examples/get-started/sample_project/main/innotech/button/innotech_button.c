@@ -77,6 +77,7 @@ void innotech_button_process(void)
     if(key_count >= 600)
     {
         innotech_set_ble_tick();
+        innotech_wifi_connect_clear();
         factory_reset_flag = 1;
         if(first_key_press == 1)
         {
@@ -87,6 +88,7 @@ void innotech_button_process(void)
     }else if(key_count >= 300 && key_count < 600)
     {
         innotech_set_ble_tick();
+        innotech_wifi_connect_clear();
         factory_reset_flag = 2;
         if(first_key_press == 0)
         {

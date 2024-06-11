@@ -143,6 +143,11 @@ uint8_t innotech_wifi_state_get(void)
     return wifi_connect_state;
 }
 
+void innotech_wifi_connect_clear(void)
+{
+    xEventGroupClearBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
+}
+
 void mqtt_send_device_status(void)
 {
     char payload[1024] = {0};

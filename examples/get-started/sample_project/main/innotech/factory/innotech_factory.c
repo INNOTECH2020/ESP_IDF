@@ -56,6 +56,7 @@ bool innotech_factory_get(void)
 void innotech_factory_reset(void)
 {
     innotech_set_ble_tick();
+    innotech_wifi_connect_clear();
     innotech_default_device_config();
     innotech_clear_consume();  
     innotech_wifi_restore();

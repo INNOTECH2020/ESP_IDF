@@ -63,6 +63,7 @@ void innotech_wifi_init(void);
 void innotech_triplet_init(void);
 uint8_t innotech_get_ota_start_flag(void);
 void innotech_wifi_restore(void);
+void innotech_wifi_connect_clear(void);
 
 #ifdef __cplusplus
 }
