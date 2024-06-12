@@ -16,6 +16,7 @@
 #include <string.h>
 #include "api_bridge.h"
 #include "innotech_wifi.h"
+#include "innotech_lcd.h"
 #include "innotech_mqtt_json.h"
 #include "innotech_config.h"
 #include "innotech_factory.h"
@@ -361,6 +362,13 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
                 }else if(strncmp(get_cmd, "ScreenBrightValue", strlen(get_cmd)) == 0)
                 {
                     mqtt_send_device_energy(); 
+                }else if(strncmp(get_cmd, "AutoBrightnessSwitch", strlen(get_cmd)) == 0)
+                {
+                    innotech_power_switch_change_clear();
+                    innotech_config_t *innotech_config = (innotech_config_t *)innotech_config_get_handle();
+                    innotech_config->lcd_switch = 1;
+                    mqtt_json_pack("ScreenSwitch", id, version, payload);
+                    esp_mqtt_client_publish(client, mqtt_type.pub_topic, payload, strlen(payload), 0, 0); 
                 }
             }
         }
