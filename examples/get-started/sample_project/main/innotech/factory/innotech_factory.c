@@ -25,6 +25,7 @@
 #include "innotech_meter.h"
 #include "innotech_lcd.h"
 #include "innotech_device.h"
+#include "innotech_uart.h"
 #include "innotech_ble.h"
 #include "api_bridge.h"
 
@@ -37,11 +38,22 @@ double fix_cur_num = 0;
 bool factory_flag = false;
  uint8_t fix_flag = 0;
 static uint8_t power_tick = 0;
+static uint8_t auto_flag = 0;
 static uint8_t check_down = 0;
 static uint8_t vol_tick = 0;
 static uint8_t vol_tick_array[10] = {0};
 static int power_tick_array[10] = {0};
 extern void esp_restart(void);
+
+void innotech_auto_flag_set(uint8_t flag)
+{
+    auto_flag = flag;
+}
+
+uint8_t innotech_auto_flag_get()
+{
+    return auto_flag;
+}
 
 uint8_t innotech_fix_flag_get(void)
 {
@@ -119,25 +131,29 @@ void innotech_factory_init(void)
     static uint8_t power_tick_flag = 0;
     static uint8_t vol_tick_flag = 0;
     uint8_t first_factory_buzzer = 0;
+    static uint8_t power_switch_temp = 0;
     innotech_netif_init();
-    innotech_config_t *innotech_config = (innotech_config_t *)innotech_config_get_handle();
+    
     
     for(int i = 0; i < 2; i++)
     {
         if(innotech_wifi_scan((uint8_t*)FACTORY_SSID))
         {
             factory_flag = true;
+            power_switch_temp = 1;
             innotech_relay_factory_init();
             innotech_button_init();
             innotech_meter_init();
             innotech_lcd_pre_init();
             innotech_buzzer_pwm_init();
+            innotech_uart_init();
             innotech_flash_read("fix_vol_num", (char *)&fix_vol_num, sizeof(double));
             innotech_flash_read("fix_num", (char *)&fix_num, sizeof(double));
             if(fix_vol_num && fix_num)
             {
                 check_down = 1;
             }
+            innotech_auto_flag_set(start_200);
             break;
         }
         vTaskDelay(100 / portTICK_PERIOD_MS);
@@ -150,6 +166,8 @@ void innotech_factory_init(void)
         innotech_button_process();
         innotech_meter_process();
         innotech_lcd_process();
+        innotech_uart_process();
+        innotech_config_t *innotech_config = (innotech_config_t *)innotech_config_get_handle();
         activepower = fix_power_factory();
         if((activepower != 0))
         {
@@ -195,7 +213,7 @@ void innotech_factory_init(void)
                 tick = 0;
                 power_tick = power_tick_callback();
                 vol_tick = vol_tick_callback();
-                printf("power_tick %d  vol_tick %d\n",power_tick,vol_tick);
+                //printf("power_tick %d  vol_tick %d\n",power_tick,vol_tick);
                 if(vol_tick > 0 && power_tick > 0)
                 {
                     fix_num = (double)200 / power_tick;
@@ -203,9 +221,10 @@ void innotech_factory_init(void)
                     if(fix_num != 0 && fix_vol_num != 0)
                     {
                         fix_flag = 1;
+                        innotech_auto_flag_set(success_200);
                         innotech_flash_write("fix_vol_num", (char *)&fix_vol_num, sizeof(double));
                         innotech_flash_write("fix_num", (char *)&fix_num, sizeof(double));
-                        printf("fix_num = %f fix_vol_num = %f \n", fix_num,fix_vol_num);
+                        //printf("fix_num = %f fix_vol_num = %f \n", fix_num,fix_vol_num);
                     }
                 }
             }
@@ -216,12 +235,22 @@ void innotech_factory_init(void)
             stop_flag = 0;
             if(inntech_buzzer_timer(3) == 3)
             {
+                innotech_auto_flag_set(success_400);
                 innotech_set_relay_status(0);
                 innotech_config->lcd_switch = 0;
                 first_factory_buzzer = 1;
             }
         }
-
+        if(innotech_config->power_switch != power_switch_temp)
+        {
+            if(inntech_buzzer_timer(1) == 1)
+            {
+                power_switch_temp = innotech_config->power_switch;
+                stop_flag = 1;
+                innotech_buzzer_pwm_write(0);
+                idx = 0;
+            }
+        }
         if(first_factory_buzzer)
         {
             stop_flag = 1;

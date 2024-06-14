@@ -27,6 +27,14 @@ void innotech_factory_reset(void);
 uint8_t innotech_fix_flag_get(void);
 void innotech_factory_init(void);
 bool innotech_factory_get(void);
+void innotech_auto_flag_set(uint8_t flag);
+uint8_t innotech_auto_flag_get();
+
+#define start_200     1
+#define success_200   2
+#define fail_200      3
+#define start_400     4
+#define success_400   5
 
 
 #ifdef __cplusplus

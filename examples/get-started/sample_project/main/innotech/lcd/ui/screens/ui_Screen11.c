@@ -13,6 +13,11 @@
 static char input_buf[18] = {0};
 static char output_buf[18] = {0};
 
+char *innotech_get_output_buf(void)
+{
+    return output_buf;
+}
+
 
 static aliyun_triad_t triad_config_success;
 void array_convert(char *input)
@@ -137,6 +142,7 @@ void factory_show_timer(void)
     else if(success_flag_200 == 0)
     {
         lv_obj_set_x(ui_Label115, -147);
+        innotech_auto_flag_set(fail_200);
         lv_label_set_text(ui_Label115, "200W校准失败");
     }
 
@@ -150,6 +156,7 @@ void factory_show_timer(void)
     if((success_flag_200 == 2) && (factory_tick > 4))
     {
         lv_label_set_text(ui_Label_success, "200W测试成功");
+        innotech_auto_flag_set(start_400);
         lv_label_set_text(ui_Label116, "开始400W过载测试");
     }
 }
