@@ -55,9 +55,8 @@ void innotech_uart_init(void)
 
 void innotech_uart_process(void)
 {
-        
     uart_tick ++;
-    if(uart_tick > 10)
+    if(uart_tick > 5)
     {
         uart_tick = 0;
         char *output_buf = innotech_get_output_buf(); 
@@ -90,40 +89,41 @@ void innotech_uart_process(void)
             get_status = 0;
             uart_write_bytes(ECHO_UART_PORT_NUM, (const char*)formatted_str, strlen(formatted_str));
         }
-
+        
+        temp_auto_flag = innotech_auto_flag_get();
+        if(last_auto_flag < temp_auto_flag)
+        {
+            last_auto_flag = temp_auto_flag;
+        }
         if(get_status == 2)
         {
-            temp_auto_flag = innotech_auto_flag_get();
-            if(last_auto_flag < temp_auto_flag)
+            get_status = 0;
+            switch(last_auto_flag)
             {
-                last_auto_flag = temp_auto_flag;
-                switch(last_auto_flag)
-                {
-                    case 0:
-                        break;
-                    case 1:
-                        uart_write_bytes(ECHO_UART_PORT_NUM, start_200W, strlen(start_200W));
-                        innotech_auto_flag_set(0);
-                        break;
-                    case 2:
-                        uart_write_bytes(ECHO_UART_PORT_NUM, success_200W, strlen(success_200W));
-                        innotech_auto_flag_set(0);
-                        break;
-                    case 3:
-                        uart_write_bytes(ECHO_UART_PORT_NUM, fail_200W, strlen(fail_200W));
-                        innotech_auto_flag_set(0);
-                        break;
-                    case 4:
-                        uart_write_bytes(ECHO_UART_PORT_NUM, start_400W, strlen(start_400W));
-                        innotech_auto_flag_set(0);
-                        break;
-                    case 5:
-                        uart_write_bytes(ECHO_UART_PORT_NUM, overload_400W, strlen(overload_400W));
-                        innotech_auto_flag_set(0);
-                        break;
-                    default:
-                        break;
-                }
+                case 0:
+                    break;
+                case 1:
+                    uart_write_bytes(ECHO_UART_PORT_NUM, start_200W, strlen(start_200W));
+                    innotech_auto_flag_set(0);
+                    break;
+                case 2:
+                    uart_write_bytes(ECHO_UART_PORT_NUM, success_200W, strlen(success_200W));
+                    innotech_auto_flag_set(0);
+                    break;
+                case 3:
+                    uart_write_bytes(ECHO_UART_PORT_NUM, fail_200W, strlen(fail_200W));
+                    innotech_auto_flag_set(0);
+                    break;
+                case 4:
+                    uart_write_bytes(ECHO_UART_PORT_NUM, start_400W, strlen(start_400W));
+                    innotech_auto_flag_set(0);
+                    break;
+                case 5:
+                    uart_write_bytes(ECHO_UART_PORT_NUM, overload_400W, strlen(overload_400W));
+                    innotech_auto_flag_set(0);
+                    break;
+                default:
+                    break;
             }
         }
     }

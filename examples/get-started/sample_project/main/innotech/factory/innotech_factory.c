@@ -233,9 +233,9 @@ void innotech_factory_init(void)
         if(((power_tick_callback() * fix_num) >= 400) && ((!first_factory_buzzer) && fix_flag))
         {
             stop_flag = 0;
+            innotech_auto_flag_set(success_400);
             if(inntech_buzzer_timer(3) == 3)
             {
-                innotech_auto_flag_set(success_400);
                 innotech_set_relay_status(0);
                 innotech_config->lcd_switch = 0;
                 first_factory_buzzer = 1;

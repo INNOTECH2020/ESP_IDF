@@ -15,7 +15,7 @@ static char output_buf[18] = {0};
 
 char *innotech_get_output_buf(void)
 {
-    return output_buf;
+    return input_buf;
 }
 
 
