@@ -105,7 +105,7 @@ static void innotech_rtc_thread(void *arg)
                 }
 				uint8_t repeat = timer_repeat_get(innotech_config->timer[i].repeat, strlen((char *)innotech_config->timer[i].repeat)+1);
                 
-                printf("timer[%d]:onoff:%d, time %d:%d, repeat: %d \r\n", i, onoff, hour, min, repeat);
+                //printf("timer[%d]:onoff:%d, time %d:%d, repeat: %d \r\n", i, onoff, hour, min, repeat);
 				if(((repeat == 0x80) || (((repeat&0x7f) & (1 << (timeinfo.tm_wday - 1))) !=0))
 					&&((hour == timeinfo.tm_hour) && (min == timeinfo.tm_min)&& (timeinfo.tm_sec == 0)))
 				{
@@ -190,7 +190,7 @@ static void innotech_rtc_thread(void *arg)
 				uint8_t onoff = innotech_config->sleep[i].onoff;
 				int32_t time_left = innotech_config->sleep[i].time_left;
                 time_t timestamp = atoll((char *)innotech_config->sleep[i].timestamp) / 1000;
-                printf("sleep[%d]:onoff:%d, time_left %ld, nowstamp: %lld timestamp: %lld\r\n", i, onoff, time_left, now, timestamp);
+                //printf("sleep[%d]:onoff:%d, time_left %ld, nowstamp: %lld timestamp: %lld\r\n", i, onoff, time_left, now, timestamp);
 				if(now - timestamp >= time_left)
 				{
                     innotech_config->sleep[i].is_running = 0;

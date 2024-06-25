@@ -570,7 +570,7 @@ void mqtt_ota_pack_reply(char *id, char *version, char *taskId, char *package_ms
         cJSON_AddItemToObject(dataJSObject, "taskId", cJSON_CreateString(taskId));		  
 		iot_json = cJSON_PrintUnformatted(IOTJSObject);  
 		sprintf(package_msg, "%s", iot_json);
-		printf("pack:%s\n", package_msg);
+		//printf("pack:%s\n", package_msg);
 		free((void *)iot_json);
 		cJSON_Delete(IOTJSObject);
 	}
@@ -595,7 +595,7 @@ void mqtt_ota_pack_step(char *id, char *version, char *taskId, int step, char *p
         }
 		iot_json = cJSON_PrintUnformatted(IOTJSObject);  
 		sprintf(package_msg, "%s", iot_json);
-		printf("pack:%s\n", package_msg);
+		//printf("pack:%s\n", package_msg);
 		free((void *)iot_json);
 		cJSON_Delete(IOTJSObject);
 	}
