@@ -128,12 +128,13 @@ int vol_tick_callback(void)
 void innotech_factory_init(void)
 {
     uint8_t tick = 0;
+    static uint8_t uoto_tick = 0;
     static uint8_t power_tick_flag = 0;
     static uint8_t vol_tick_flag = 0;
     uint8_t first_factory_buzzer = 0;
     static uint8_t power_switch_temp = 0;
     innotech_netif_init();
-    
+    innotech_config_t *innotech_config = (innotech_config_t *)innotech_config_get_handle();
     
     for(int i = 0; i < 2; i++)
     {
@@ -167,11 +168,11 @@ void innotech_factory_init(void)
         innotech_meter_process();
         innotech_lcd_process();
         innotech_uart_process();
-        innotech_config_t *innotech_config = (innotech_config_t *)innotech_config_get_handle();
+        
         activepower = fix_power_factory();
         if((activepower != 0))
         {
-            if(activepower_flag < 10)
+            if(activepower_flag < 30)
             {
                 activepower_flag ++;
             }
@@ -183,26 +184,16 @@ void innotech_factory_init(void)
 
         if(tick % 15 == 0)
         {
-            if(fix_flag == 0)
+            if(activepower_flag >= 20)
             {
                 power_tick_array[power_tick_flag++] = fix_power_factory();
                 vol_tick_array[vol_tick_flag++] = fix_vol_factory();
-                power_tick_flag %= 10;
-                vol_tick_flag %= 10;
-            }else
+            }else if(activepower_flag == 0)
             {
-                if(activepower_flag >= 5)
-                {
-                    power_tick_array[power_tick_flag++] = fix_power_factory();
-                    vol_tick_array[vol_tick_flag++] = fix_vol_factory();
-                }else if(activepower_flag == 0)
-                {
-                    power_tick_array[power_tick_flag++] = 0;
-                }
-                power_tick_flag %= 10;
-                vol_tick_flag %= 10;
+                power_tick_array[power_tick_flag++] = 0;
             }
-            
+            power_tick_flag %= 10;
+            vol_tick_flag %= 10;
         }
         
         
@@ -243,13 +234,8 @@ void innotech_factory_init(void)
         }
         if(innotech_config->power_switch != power_switch_temp)
         {
-            if(inntech_buzzer_timer(1) == 1)
-            {
-                power_switch_temp = innotech_config->power_switch;
-                stop_flag = 1;
-                innotech_buzzer_pwm_write(0);
-                idx = 0;
-            }
+            power_switch_temp = innotech_config->power_switch;
+            innotech_buzzer_pwm_write(4095);
         }
         if(first_factory_buzzer)
         {
@@ -258,7 +244,13 @@ void innotech_factory_init(void)
             idx = 0;
         }
         
-        vTaskDelay(50 / portTICK_PERIOD_MS);
+        if((++uoto_tick > 50) && !fix_flag)
+        {
+            uoto_tick = 0;
+            innotech_buzzer_pwm_write(0);
+        }
+        
+        vTaskDelay(20 / portTICK_PERIOD_MS);
         
     }
     
