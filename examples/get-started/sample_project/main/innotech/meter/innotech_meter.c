@@ -90,7 +90,7 @@ typedef struct _energy_manage_t{
 energy_manage_t energy;
 energy_manage_t energy_last;
 
-static DRAM_ATTR int power_cnt_num[30] = {0};
+static DRAM_ATTR int power_cnt_num[20] = {0};
 static DRAM_ATTR int power_factory_num[30] = {0};
 static DRAM_ATTR int vol_cnt_num[30] = {0};
 static DRAM_ATTR int vol_factory_num[30] = {0};
@@ -315,11 +315,11 @@ int power_always_callback()
     int count = 0; 
     int i, j;
  
-    for (i = 0; i < 30; i++) 
+    for (i = 0; i < 20; i++) 
     {
         count = 0;
         zero_power_tick = 0;
-        for (j = 0; j < 30; j++) 
+        for (j = 0; j < 20; j++) 
         {
             if (power_cnt_num[i] == power_cnt_num[j] && power_cnt_num[j] != 0) 
             {
@@ -334,7 +334,7 @@ int power_always_callback()
                 zero_power_tick = 0;
             }
         }
-        if (count > max_count && zero_power_tick == 30 )
+        if (count > max_count && zero_power_tick == 20 )
         {
             max_count = count;
             max_num = power_cnt_num[i];
@@ -491,7 +491,7 @@ void innotech_meter_process(void)
         mqtt_send_device_energy();
     }
 
-    if((queue_cnt % 15) == 0)
+    if((queue_cnt % 10) == 0)
     {
         activepower = (int)bl0937_getActivePower();
         if(activepower != 0)
@@ -520,7 +520,7 @@ void innotech_meter_process(void)
         }
         vol_temp = (int)bl0937_getVoltage();
         vol_cnt_num[vol_flag++] = vol_temp;
-        power_flag = power_flag % 30;
+        power_flag = power_flag % 20;
         vol_flag = vol_flag % 30;
     }
     if(queue_cnt >= 50)
