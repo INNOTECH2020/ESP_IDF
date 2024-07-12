@@ -10,5 +10,5 @@ dependencies:
     version: "^1"
     public: true
   esp_lcd_st7701:
-    version: "*"
+    version: "1.0.0"
   espressif/zlib: ^1
