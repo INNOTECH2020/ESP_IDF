@@ -43,7 +43,7 @@
 #define TEST_RGB_BIT_PER_PIXEL      (16)
 #define TEST_RGB_DATA_WIDTH         (16)
 
-#define MIN_LED_LUMI                7
+#define MIN_LED_LUMI                5
 #define TEST_LCD_IO_RGB_DISP        (GPIO_NUM_NC)
 #define TEST_LCD_IO_RGB_VSYNC       (GPIO_NUM_47)
 #define TEST_LCD_IO_RGB_HSYNC       (GPIO_NUM_48)
@@ -609,6 +609,7 @@ void innotech_power_switch_change_clear(void)
 void innotech_lcd_process(void)
 { 
     innotech_config_t *innotech_config = (innotech_config_t *)innotech_config_get_handle();
+
     if(innotech_config->power_switch == 1 && last_power_switch == 0)
     {
         last_power_switch = 1;
@@ -637,7 +638,8 @@ void innotech_lcd_process(void)
     }
     else if(innotech_config->brightness_switch == 0)
     {
-        innotech_led_pwm_write(innotech_config->lcd_brightness);
+        uint8_t brightness =  innotech_config->lcd_brightness *(100 - MIN_LED_LUMI)/ 100 + MIN_LED_LUMI;
+        innotech_led_pwm_write(brightness);
     }
     else if(innotech_config->brightness_switch == 1)
     {
@@ -689,7 +691,7 @@ void innotech_lcd_pre_init(void)
     ui____initial_actions0 = lv_obj_create(NULL);
     
     lv_disp_load_scr(ui_Screen11);
-    innotech_led_pwm_write(100);
+    
     vTaskDelay(pdMS_TO_TICKS(100));
     example_lvgl_unlock();
 }

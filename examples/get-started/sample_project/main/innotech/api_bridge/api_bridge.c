@@ -288,7 +288,7 @@ void innotech_led_pwm_init(void)
         .speed_mode = LEDC_LOW_SPEED_MODE,
         .duty_resolution = LEDC_TIMER_10_BIT,
         .timer_num = LEDC_LS_TIMER,
-        .freq_hz = 500,
+        .freq_hz = 60000,
         .clk_cfg = LEDC_AUTO_CLK
     };
     ledc_timer_config(&ledc_timer);
