@@ -148,6 +148,8 @@ void innotech_factory_init(void)
             innotech_lcd_pre_init();
             innotech_buzzer_pwm_init();
             innotech_uart_init();
+            innotech_default_device_config();
+
             innotech_flash_read("fix_vol_num", (char *)&fix_vol_num, sizeof(double));
             innotech_flash_read("fix_num", (char *)&fix_num, sizeof(double));
             if(fix_vol_num && fix_num)
